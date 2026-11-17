@@ -5,6 +5,7 @@
     "name_zh": "Itsel",
     "url": "http://19.16.1.5:8069/odoo/manufacturing",
     "incognito": false,
+    "new_window": true,
     "width": 1920,
     "height": 1280
   },
