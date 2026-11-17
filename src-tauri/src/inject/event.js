@@ -820,14 +820,17 @@ document.addEventListener("DOMContentLoaded", () => {
         page_url: window.location.href,
       },
     }).catch((error) => {
-      // Debug and release builds have different ACL rejection messages.
-      // Let the browser handle attachments without granting remote IPC.
-      if (/^(?:Command )?download_file not allowed\b/.test(String(error))) {
-        triggerNativeDownload(url, filename);
-        return;
-      }
-      console.error("Failed to download file:", filename, error);
-      showDownloadError(filename);
+      // The native WebView2 download pipeline preserves the browser session
+      // (cookies, redirects and authentication). Use it as a fallback not only
+      // for ACL rejections but also when the HTTP/IPC downloader cannot handle
+      // a site's response. Attachment responses are captured by Rust's
+      // DownloadStarting handler and saved to Pake's configured download folder.
+      console.warn(
+        "[Pake] IPC download failed; falling back to the native WebView download:",
+        filename,
+        error,
+      );
+      triggerNativeDownload(url, filename);
     });
   }
 
