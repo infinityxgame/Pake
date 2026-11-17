@@ -44,9 +44,8 @@ pub fn install(window: &WebviewWindow, target: Option<tauri::Url>) -> tauri::Res
                         match destination {
                             Ok(path) => {
                                 args.SetResultFilePath(&HSTRING::from(path.as_os_str()))?;
-                                // The destination is managed by Pake. Mark the event
-                                // handled to suppress WebView2's default download UI.
-                                args.SetHandled(true)?;
+                                // Leave the event unhandled so WebView2 performs the
+                                // download using the destination set above.
                             }
                             Err(error) => {
                                 args.SetCancel(true)?;
