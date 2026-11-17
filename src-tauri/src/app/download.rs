@@ -23,6 +23,8 @@ pub fn install(window: &WebviewWindow, target: Option<tauri::Url>) -> tauri::Res
                 downloads.add_DownloadStarting(
                     &DownloadStartingEventHandler::create(Box::new(move |_, args| {
                         let Some(args) = args else { return Ok(()) };
+                        eprintln!("[Pake] WebView2 DownloadStarting event received.");
+                        show_toast(&download_window, "Diagnóstico: WebView2 detectó una descarga.");
                         // Set an explicit destination and let WebView2 complete the
                         // download without showing its own Save As dialog. The host
                         // handles the destination; it must not cancel the operation.
