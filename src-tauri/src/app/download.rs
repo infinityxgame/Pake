@@ -23,9 +23,9 @@ pub fn install(window: &WebviewWindow, target: Option<tauri::Url>) -> tauri::Res
                 downloads.add_DownloadStarting(
                     &DownloadStartingEventHandler::create(Box::new(move |_, args| {
                         let Some(args) = args else { return Ok(()) };
-                        // Fail closed if changing the destination fails: never fall
-                        // back to a different folder or overwrite an existing file.
-                        args.SetCancel(true)?;
+                        // Set an explicit destination and let WebView2 complete the
+                        // download without showing its own Save As dialog. The host
+                        // handles the destination; it must not cancel the operation.
                         let destination = (|| -> Result<PathBuf, String> {
                             let mut path = PWSTR::null();
                             args.ResultFilePath(&mut path).map_err(|e| e.to_string())?;
@@ -44,9 +44,9 @@ pub fn install(window: &WebviewWindow, target: Option<tauri::Url>) -> tauri::Res
                         match destination {
                             Ok(path) => {
                                 args.SetResultFilePath(&HSTRING::from(path.as_os_str()))?;
-                                // Unlike Wry's requested callback, leave WebView2's UI visible.
-                                args.SetHandled(false)?;
-                                args.SetCancel(false)?;
+                                // The destination is managed by Pake. Mark the event
+                                // handled to suppress WebView2's default download UI.
+                                args.SetHandled(true)?;
                             }
                             Err(error) => {
                                 args.SetCancel(true)?;
